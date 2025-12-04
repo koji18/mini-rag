@@ -498,4 +498,4 @@ python -m src.cli config show
 
 ---
 
-最終更新: 2024年12月
+最終更新: 2025年12月
