@@ -1,8 +1,8 @@
 """
-Embedding module for Mini-RAG system.
+Mini-RAG システムの埋め込みモジュール。
 
-Handles text-to-vector conversion using Sentence Transformers.
-Provides EmbeddingManager for single/batch embeddings and EmbeddingCache for caching.
+Sentence Transformers を使用したテキスト-ベクトル変換を処理します。
+単一/バッチ埋め込み用の EmbeddingManager と キャッシング用の EmbeddingCache を提供します。
 """
 
 import logging
@@ -31,23 +31,23 @@ logger = logging.getLogger(__name__)
 
 class EmbeddingManager:
     """
-    Manages text embedding using Sentence Transformers.
+    Sentence Transformers を使用したテキスト埋め込みの管理。
 
-    Converts text strings into 384-dimensional vectors using the
-    all-MiniLM-L6-v2 model. Supports single text, batch processing,
-    and cosine similarity calculations.
+    テキスト文字列を all-MiniLM-L6-v2 モデルを使用して
+    384 次元のベクトルに変換します。単一テキスト、バッチ処理、
+    コサイン類似度計算をサポートしています。
 
-    Attributes:
-        model (SentenceTransformer): Loaded embedding model
-        cache (EmbeddingCache): Embedding cache instance
+    属性:
+        model (SentenceTransformer): 読み込まれた埋め込みモデル
+        cache (EmbeddingCache): 埋め込みキャッシュインスタンス
     """
 
     def __init__(self, use_cache: bool = True):
         """
-        Initialize EmbeddingManager with model and cache.
+        EmbeddingManager をモデルとキャッシュで初期化します。
 
-        Args:
-            use_cache (bool): Whether to enable caching. Default: True
+        引数:
+            use_cache (bool): キャッシュを有効にするかどうか。デフォルト: True
         """
         self.model: Optional[SentenceTransformer] = None
         self.use_cache = use_cache
@@ -56,7 +56,7 @@ class EmbeddingManager:
         logger.info(f"EmbeddingManager initialized (model: {EMBEDDING_MODEL})")
 
     def _load_model(self) -> None:
-        """Lazy load the embedding model on first use."""
+        """初回使用時に埋め込みモデルを遅延ロードします。"""
         if self.model is None:
             try:
                 logger.info(f"Loading embedding model: {EMBEDDING_MODEL}")
@@ -71,20 +71,20 @@ class EmbeddingManager:
 
     def embed_text(self, text: str) -> np.ndarray:
         """
-        Embed a single text string.
+        単一のテキスト文字列を埋め込みます。
 
-        Converts a text string into a 384-dimensional vector.
-        Uses cache if enabled.
+        テキスト文字列を 384 次元のベクトルに変換します。
+        キャッシュが有効な場合は使用されます。
 
-        Args:
-            text (str): Input text to embed
+        引数:
+            text (str): 埋め込むテキスト
 
-        Returns:
-            np.ndarray: Embedding vector of shape (384,) with dtype float32
+        戻り値:
+            np.ndarray: 形状 (384,)、データ型 float32 の埋め込みベクトル
 
-        Raises:
-            TypeError: If text is not a string
-            ValueError: If text is empty
+        例外:
+            TypeError: text が文字列でない場合
+            ValueError: text が空の場合
         """
         # Input validation
         if not isinstance(text, str):
@@ -132,21 +132,21 @@ class EmbeddingManager:
 
     def embed_batch(self, texts: List[str]) -> np.ndarray:
         """
-        Embed multiple texts as a batch.
+        複数のテキストをバッチで埋め込みます。
 
-        Efficiently embeds multiple texts. Checks cache for each text first,
-        then batches the remaining texts for embedding.
+        複数のテキストを効率的に埋め込みます。各テキストについて
+        まずキャッシュを確認し、その後残りのテキストをバッチで埋め込みます。
 
-        Args:
-            texts (List[str]): List of text strings to embed
+        引数:
+            texts (List[str]): 埋め込むテキスト文字列のリスト
 
-        Returns:
-            np.ndarray: Embeddings of shape (n, 384) with dtype float32
-                       where n is the number of input texts
+        戻り値:
+            np.ndarray: 形状 (n, 384)、データ型 float32 の埋め込み配列
+                       (n は入力テキストの数)
 
-        Raises:
-            TypeError: If texts is not a list of strings
-            ValueError: If texts is empty
+        例外:
+            TypeError: texts が文字列のリストでない場合
+            ValueError: texts が空の場合
         """
         # Input validation
         if not isinstance(texts, list):
@@ -229,23 +229,21 @@ class EmbeddingManager:
     @staticmethod
     def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
         """
-        Calculate cosine similarity between two vectors.
+        2 つのベクトル間のコサイン類似度を計算します。
 
-        Computes: (A�B) / (||A|| * ||B||)
+        正規化されたベクトルの場合、内積と同等です。
 
-        For normalized vectors, this is equivalent to the dot product.
+        引数:
+            vec1 (np.ndarray): 最初のベクトル (形状: (d,))
+            vec2 (np.ndarray): 2 番目のベクトル (形状: (d,))
 
-        Args:
-            vec1 (np.ndarray): First vector (shape: (d,))
-            vec2 (np.ndarray): Second vector (shape: (d,))
+        戻り値:
+            float: -1.0 ～ 1.0 の範囲のコサイン類似度
+                  (正規化されたベクトルの場合は通常 0.0 ～ 1.0)
 
-        Returns:
-            float: Cosine similarity in range [-1.0, 1.0]
-                  (typically [0.0, 1.0] for normalized vectors)
-
-        Raises:
-            TypeError: If inputs are not numpy arrays
-            ValueError: If vectors have incompatible shapes
+        例外:
+            TypeError: 入力が numpy 配列でない場合
+            ValueError: ベクトルの形状が互換性がない場合
         """
         # Input validation
         if not isinstance(vec1, np.ndarray) or not isinstance(vec2, np.ndarray):
@@ -271,13 +269,13 @@ class EmbeddingManager:
     @staticmethod
     def _validate_embedding(embedding: np.ndarray) -> None:
         """
-        Validate embedding vector properties.
+        埋め込みベクトルのプロパティを検証します。
 
-        Args:
-            embedding (np.ndarray): Embedding vector to validate
+        引数:
+            embedding (np.ndarray): 検証する埋め込みベクトル
 
-        Raises:
-            ValueError: If embedding is invalid
+        例外:
+            ValueError: 埋め込みが無効な場合
         """
         if embedding.shape[0] != EMBEDDING_DIMENSION:
             raise ValueError(
@@ -291,28 +289,29 @@ class EmbeddingManager:
 
 class EmbeddingCache:
     """
-    Cache for embeddings with LRU eviction and TTL support.
+    LRU削除と TTL サポート付きの埋め込みキャッシュ。
 
-    Stores embeddings in memory with a maximum size limit.
-    Uses Least Recently Used (LRU) eviction policy when cache is full.
-    Supports Time-To-Live (TTL) for automatic expiration.
+    埋め込みをメモリに保存し、最大サイズ制限があります。
+    キャッシュが満杯の場合、最も最近使用されていない
+    (Least Recently Used) 削除ポリシーを使用します。
+    自動削除のための Time-To-Live (TTL) をサポートしています。
 
-    Attributes:
-        cache (Dict): In-memory cache {text: embedding}
-        timestamps (Dict): Creation timestamps for TTL {text: timestamp}
-        max_size (int): Maximum cache size
-        ttl (int): Time-to-live in seconds
+    属性:
+        cache (Dict): メモリ内キャッシュ {text: embedding}
+        timestamps (Dict): TTL 用の作成タイムスタンプ {text: timestamp}
+        max_size (int): 最大キャッシュサイズ
+        ttl (int): Time-to-live (秒単位)
     """
 
     def __init__(self,
                  max_size: int = EMBEDDING_CACHE_SIZE,
                  ttl: int = EMBEDDING_CACHE_TTL):
         """
-        Initialize embedding cache.
+        埋め込みキャッシュを初期化します。
 
-        Args:
-            max_size (int): Maximum number of cached embeddings. Default: 10,000
-            ttl (int): Time-to-live in seconds. Default: 86,400 (24 hours)
+        引数:
+            max_size (int): キャッシュ可能な埋め込みの最大数。デフォルト: 10,000
+            ttl (int): TTL (秒単位)。デフォルト: 86,400 (24時間)
         """
         self.cache: Dict[str, np.ndarray] = {}
         self.timestamps: Dict[str, float] = {}
@@ -325,13 +324,13 @@ class EmbeddingCache:
 
     def get(self, key: str) -> Optional[np.ndarray]:
         """
-        Retrieve embedding from cache.
+        キャッシュから埋め込みを取得します。
 
-        Args:
-            key (str): Cache key (usually the input text)
+        引数:
+            key (str): キャッシュキー (通常は入力テキスト)
 
-        Returns:
-            np.ndarray: Cached embedding if valid, None otherwise
+        戻り値:
+            np.ndarray: 有効な場合はキャッシュされた埋め込み、そうでない場合は None
         """
         if key not in self.cache:
             return None
@@ -354,13 +353,13 @@ class EmbeddingCache:
 
     def set(self, key: str, value: np.ndarray) -> None:
         """
-        Store embedding in cache.
+        埋め込みをキャッシュに保存します。
 
-        If cache is full, removes the least recently used item.
+        キャッシュが満杯の場合、最も最近使用されていないアイテムを削除します。
 
-        Args:
-            key (str): Cache key (usually the input text)
-            value (np.ndarray): Embedding vector to cache
+        引数:
+            key (str): キャッシュキー (通常は入力テキスト)
+            value (np.ndarray): キャッシュする埋め込みベクトル
         """
         # Evict LRU if cache is full
         if len(self.cache) >= self.max_size and key not in self.cache:
@@ -383,10 +382,10 @@ class EmbeddingCache:
 
     def clear_expired(self) -> int:
         """
-        Remove all expired entries based on TTL.
+        TTL に基づいてすべての期限切れエントリを削除します。
 
-        Returns:
-            int: Number of entries removed
+        戻り値:
+            int: 削除されたエントリの数
         """
         current_time = time.time()
         expired_keys = [
@@ -406,7 +405,7 @@ class EmbeddingCache:
         return len(expired_keys)
 
     def clear(self) -> None:
-        """Clear all cache entries."""
+        """すべてのキャッシュエントリをクリアします。"""
         self.cache.clear()
         self.timestamps.clear()
         self.access_times.clear()
@@ -414,10 +413,10 @@ class EmbeddingCache:
 
     def get_stats(self) -> Dict[str, int]:
         """
-        Get cache statistics.
+        キャッシュ統計を取得します。
 
-        Returns:
-            Dict: Cache stats including size and hit info
+        戻り値:
+            Dict: サイズなどのキャッシュ統計情報
         """
         return {
             "size": len(self.cache),
