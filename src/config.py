@@ -24,8 +24,8 @@ for dir_path in [DATA_DIR, DOCS_DIR, INDEX_DIR, CACHE_DIR]:
 # 1. Embedding Model Configuration
 # ============================================================================
 
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-EMBEDDING_DIMENSION = 384
+EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+EMBEDDING_DIMENSION = 384  # multilingual-MiniLM-L12-v2も384次元
 EMBEDDING_DEVICE = "cpu"
 EMBEDDING_BATCH_SIZE = 32
 EMBEDDING_NORMALIZE = True
@@ -65,7 +65,7 @@ INDEX_SAVE_INTERVAL = 100
 # ============================================================================
 
 SIMILARITY_METRIC = "cosine"
-SIMILARITY_THRESHOLD = 0.3
+SIMILARITY_THRESHOLD = 0.2  # より多くの関連情報を取得するため0.2に変更
 TOP_K = 3
 
 ENABLE_RANKING = True
