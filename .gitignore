@@ -59,8 +59,7 @@ htmlcov/
 .env.*.local
 
 # Project specific
-data/index/
-data/cache/
+data/
 logs/
 *.log
 test_results/
